@@ -3,7 +3,7 @@ project: deblur_gan
 experiment_desc: fpn
 
 train:
-  files_a: &FILES_A /datasets/my_dataset/**/*.jpg
+  files_a: &FILES_A /data/SOTIS/Stabilized/EurasianCitiesBase-Part1/NFrames50/NLTV-LK/001-1/L1000/**/*.png
   files_b: *FILES_A
   size: &SIZE 256
   crop: random
