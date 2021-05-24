@@ -88,10 +88,10 @@ def process_video(pairs, predictor, output_dir):
             pred = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
             video_out.write(pred)
 
-def main(img_pattern: str,
+def main(img_pattern: str = "/data/SOTIS/Stabilized/EurasianCitiesBase-Part1/NFrames50/NLTV-LK/**/**/*.png",
          mask_pattern: Optional[str] = None,
          weights_path='fpn_inception.h5',
-         out_dir='submit/',
+         out_dir='results/',
          side_by_side: bool = False,
          video: bool = False):
     def sorted_glob(pattern):
@@ -100,12 +100,11 @@ def main(img_pattern: str,
     imgs = sorted_glob(img_pattern)
     masks = sorted_glob(mask_pattern) if mask_pattern is not None else [None for _ in imgs]
     pairs = zip(imgs, masks)
-    names = sorted([os.path.basename(x) for x in glob(img_pattern)])
+    # names = sorted([os.path.basename(x) for x in glob(img_pattern)])
     predictor = Predictor(weights_path=weights_path)
 
-    os.makedirs(out_dir, exist_ok=True)
     if not video:
-        for name, pair in tqdm(zip(names, pairs), total=len(names)):
+        for pair in tqdm(pairs, total=len(imgs)):
             f_img, f_mask = pair
             img, mask = map(cv2.imread, (f_img, f_mask))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -114,7 +113,8 @@ def main(img_pattern: str,
             if side_by_side:
                 pred = np.hstack((img, pred))
             pred = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(os.path.join(out_dir, name),
+            os.makedirs(os.path.join(os.getcwd(), out_dir, os.path.dirname(f_img)[1:]), exist_ok=True)
+            cv2.imwrite(os.path.join(os.getcwd(), out_dir, f_img[1:]),
                         pred)
     else:
         process_video(pairs, predictor, out_dir)
