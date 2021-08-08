@@ -4,6 +4,8 @@ from functools import partial
 from glob import glob
 from hashlib import sha1
 from typing import Callable, Iterable, Optional, Tuple
+from pathlib import Path
+import math
 
 import cv2
 import numpy as np
@@ -55,7 +57,7 @@ class PairedDataset(Dataset):
                  transform_fn: Callable,
                  normalize_fn: Callable,
                  corrupt_fn: Optional[Callable] = None,
-                 preload: bool = True,
+                 preload: bool = False,
                  preload_size: Optional[int] = 0,
                  verbose=True):
 
@@ -106,18 +108,36 @@ class PairedDataset(Dataset):
 
     def __getitem__(self, idx):
         a, b = self.data_a[idx], self.data_b[idx]
-        if not self.preload:
-            a, b = map(_read_img, (a, b))
-        a, b = self.transform_fn(a, b)
-        if self.corrupt_fn is not None:
-            a = self.corrupt_fn(a)
-        a, b = self._preprocess(a, b)
+
+        # NOTE: loads all images at once and takes too much memory
+
+        # if not self.preload:
+        #     a, b = map(_read_img, (a, b))
+        # a, b = self.transform_fn(a, b)
+        # if self.corrupt_fn is not None:
+        #     a = self.corrupt_fn(a)
+        # a, b = self._preprocess(a, b)
+
         return {'a': a, 'b': b}
 
     @staticmethod
     def from_config(config):
         config = deepcopy(config)
-        files_a, files_b = map(lambda x: sorted(glob(config[x], recursive=True)), ('files_a', 'files_b'))
+        train_ratio = config['train_ratio']
+        files_a = sorted(glob(config['files_a'], recursive=True))
+
+        train_num = math.floor(len(files_a) * train_ratio)
+
+        files_a = files_a[:train_num]
+        files_b = []
+
+        for f in files_a:
+            path = Path(f)
+            absolute = path.parent.absolute().parent.absolute()
+            image = os.path.basename(str(absolute))
+            gt = os.path.join("/data/SOTIS2/Groundtruth/EurasianCitiesGT", image + ".png")
+            files_b.append(gt)
+
         transform_fn = aug.get_transforms(size=config['size'], scope=config['scope'], crop=config['crop'])
         normalize_fn = aug.get_normalize()
         corrupt_fn = aug.get_corrupt_function(config['corrupt'])

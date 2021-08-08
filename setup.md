@@ -26,15 +26,16 @@ python train.py
 
 ### Run
 
-> Train (TODO)
+> Train
 
 ```bash
-python train.py
+docker run -d -it --gpus all --name dg -w /workspace -v /media/DataDrive/:/data -v $(pwd):/workspace dg:0.0.1 ./train.sh
+docker logs dg --tail 100 -f
 ```
 
 > Test
 
-```
+```bash
 docker run -d --gpus all --name dg -p 8000:8000 -w /workspace -v /media/DataDrive/:/data -v $(pwd):/workspace dg:0.0.1 entrypoint.sh
-docker logs cc-real --tail 100 -f
+docker logs dg --tail 100 -f
 ```

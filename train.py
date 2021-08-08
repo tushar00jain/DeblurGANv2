@@ -1,4 +1,7 @@
 import logging
+import aug
+import numpy as np
+
 from functools import partial
 
 import cv2
@@ -10,7 +13,7 @@ from joblib import cpu_count
 from torch.utils.data import DataLoader
 
 from adversarial_trainer import GANFactory
-from dataset import PairedDataset
+from dataset import PairedDataset, _read_img
 from metric_counter import MetricCounter
 from models.losses import get_loss
 from models.models import get_model
@@ -31,22 +34,28 @@ class Trainer:
 
     def train(self):
         self._init_params()
-        for epoch in range(0, config['num_epochs']):
+
+        checkpoint = torch.load('last_{}.h5'.format(self.config['experiment_desc']))
+        self.netG.load_state_dict(checkpoint['model'])
+        last_epoch = checkpoint.get('epoch') or -1
+
+        for epoch in range(last_epoch+1, config['num_epochs']):
             if (epoch == self.warmup_epochs) and not (self.warmup_epochs == 0):
                 self.netG.module.unfreeze()
                 self.optimizer_G = self._get_optim(self.netG.parameters())
                 self.scheduler_G = self._get_scheduler(self.optimizer_G)
             self._run_epoch(epoch)
-            self._validate(epoch)
+            # self._validate(epoch)
             self.scheduler_G.step()
             self.scheduler_D.step()
 
             if self.metric_counter.update_best_model():
                 torch.save({
-                    'model': self.netG.state_dict()
+                    'model': self.netG.state_dict(),
                 }, 'best_{}.h5'.format(self.config['experiment_desc']))
             torch.save({
-                'model': self.netG.state_dict()
+                'model': self.netG.state_dict(),
+                'epoch': epoch
             }, 'last_{}.h5'.format(self.config['experiment_desc']))
             print(self.metric_counter.loss_message())
             logging.debug("Experiment Name: %s, Epoch: %d, Loss: %s" % (
@@ -61,7 +70,27 @@ class Trainer:
         tq = tqdm.tqdm(self.train_dataset, total=epoch_size)
         tq.set_description('Epoch {}, lr {}'.format(epoch, lr))
         i = 0
+
+        # transform_fn = aug.get_transforms(size=config['size'], scope=config['scope'], crop=config['crop'])
+        normalize_fn = aug.get_normalize()
+        # corrupt_fn = aug.get_corrupt_function(config['corrupt'])
+        def _preprocess(img, res):
+            def transpose(x):
+                return np.transpose(x, (2, 0, 1))
+
+            return map(transpose, normalize_fn(img, res))
+
         for data in tq:
+            a, b = data['a'][0], data['b'][0]
+            a, b = map(_read_img, (a, b))
+            # a, b = transform_fn(a, b)
+            # a = corrupt_fn(a)
+            a, b = _preprocess(a, b)
+            a, b = np.expand_dims(a, axis=0), np.expand_dims(b, axis=0)
+            a, b = torch.from_numpy(a), torch.from_numpy(b)
+
+            data = {'a': a, 'b': b}
+
             inputs, targets = self.model.get_input(data)
             outputs = self.netG(inputs)
             loss_D = self._update_d(outputs, targets)

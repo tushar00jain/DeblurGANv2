@@ -1,9 +1,10 @@
 ---
 project: deblur_gan
-experiment_desc: fpn
+experiment_desc: sotis
 
 train:
-  files_a: &FILES_A /data/SOTIS/Stabilized/EurasianCitiesBase-Part1/NFrames50/NLTV-LK/001-1/L1000/**/*.png
+  train_ratio: .75
+  files_a: &FILES_A /data/SOTIS2/Stabilized/EurasianCitiesBase-Part1/NFrames50/NLTV-LK/**/**/*.png
   files_b: *FILES_A
   size: &SIZE 256
   crop: random
@@ -28,6 +29,7 @@ train:
     - name: sharpen
 
 val:
+  train_ratio: .75
   files_a: *FILES_A
   files_b: *FILES_A
   size: *SIZE
@@ -52,9 +54,9 @@ model:
   norm_layer: instance
   dropout: True
 
-num_epochs: 200
-train_batches_per_epoch: 1000
-val_batches_per_epoch: 100
+num_epochs: 2000
+# train_batches_per_epoch: 1
+# val_batches_per_epoch: 1
 batch_size: 1
 image_size: [256, 256]
 
