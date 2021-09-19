@@ -19,7 +19,7 @@ class Predictor:
             config = yaml.load(cfg)
         model = get_generator(model_name or config['model'])
         model.load_state_dict(torch.load(weights_path)['model'])
-        self.model = model.cuda()
+        self.model = model.cpu()
         self.model.train(True)
         # GAN inference should be in train mode to use actual stats in norm layers,
         # it's not a bug
@@ -62,7 +62,7 @@ class Predictor:
     def __call__(self, img: np.ndarray, mask: Optional[np.ndarray], ignore_mask=True) -> np.ndarray:
         (img, mask), h, w = self._preprocess(img, mask)
         with torch.no_grad():
-            inputs = [img.cuda()]
+            inputs = [img.cpu()]
             if not ignore_mask:
                 inputs += [mask]
             pred = self.model(*inputs)

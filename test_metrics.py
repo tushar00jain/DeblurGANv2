@@ -53,7 +53,7 @@ def test_image(model, image_path):
 	img_tensor = torch.from_numpy(np.transpose(img_s / 255, (2, 0, 1)).astype('float32'))
 	img_tensor = img_transforms(img_tensor)
 	with torch.no_grad():
-		img_tensor = Variable(img_tensor.unsqueeze(0).cuda())
+		img_tensor = Variable(img_tensor.unsqueeze(0).cpu())
 		result_image = model(img_tensor)
 	result_image = result_image[0].cpu().float().numpy()
 	result_image = (np.transpose(result_image, (1, 2, 0)) + 1) / 2.0 * 255.0
@@ -85,6 +85,6 @@ if __name__ == '__main__':
 		config = yaml.load(cfg)
 	model = get_generator(config['model'])
 	model.load_state_dict(torch.load(args.weights_path)['model'])
-	model = model.cuda()
+	model = model.cpu()
 	filenames = sorted(glob.glob(args.img_folder + '/test' + '/blur/**/*.png', recursive=True))
 	test(model, filenames)

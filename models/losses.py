@@ -28,9 +28,9 @@ class PerceptualLoss():
     def contentFunc(self):
         conv_3_3_layer = 14
         cnn = models.vgg19(pretrained=True).features
-        cnn = cnn.cuda()
+        cnn = cnn.cpu()
         model = nn.Sequential()
-        model = model.cuda()
+        model = model.cpu()
         model = model.eval()
         for i, layer in enumerate(list(cnn)):
             model.add_module(str(i), layer)
@@ -88,7 +88,7 @@ class GANLoss(nn.Module):
                 fake_tensor = self.Tensor(input.size()).fill_(self.fake_label)
                 self.fake_label_var = Variable(fake_tensor, requires_grad=False)
             target_tensor = self.fake_label_var
-        return target_tensor.cuda()
+        return target_tensor.cpu()
 
     def __call__(self, input, target_is_real):
         target_tensor = self.get_target_tensor(input, target_is_real)
@@ -246,17 +246,17 @@ class DiscLossWGANGP(DiscLossLS):
     def calc_gradient_penalty(self, netD, real_data, fake_data):
         alpha = torch.rand(1, 1)
         alpha = alpha.expand(real_data.size())
-        alpha = alpha.cuda()
+        alpha = alpha.cpu()
 
         interpolates = alpha * real_data + ((1 - alpha) * fake_data)
 
-        interpolates = interpolates.cuda()
+        interpolates = interpolates.cpu()
         interpolates = Variable(interpolates, requires_grad=True)
 
         disc_interpolates = netD.forward(interpolates)
 
         gradients = autograd.grad(outputs=disc_interpolates, inputs=interpolates,
-                                  grad_outputs=torch.ones(disc_interpolates.size()).cuda(),
+                                  grad_outputs=torch.ones(disc_interpolates.size()).cpu(),
                                   create_graph=True, retain_graph=True, only_inputs=True)[0]
 
         gradient_penalty = ((gradients.norm(2, dim=1) - 1) ** 2).mean() * self.LAMBDA
