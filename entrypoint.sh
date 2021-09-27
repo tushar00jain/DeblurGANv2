@@ -1,6 +1,7 @@
 #!/bin/bash
 
-declare -a xs=("NLTV-LK" "NLTV-TVL1" "TV-LK" "TV-TVL1")
+# declare -a xs=("NLTV-LK" "NLTV-TVL1" "TV-LK" "TV-TVL1")
+declare -a xs=("NLTV-LK")
 
 for x in "${xs[@]}"
 do

@@ -19,7 +19,7 @@ class Predictor:
         with open('config/config.yaml') as cfg:
             config = yaml.load(cfg)
         model = get_generator(model_name or config['model'])
-        model.load_state_dict(torch.load(weights_path)['model'])
+        model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu'))['model'])
         self.model = model.cpu()
         self.model.train(True)
         # GAN inference should be in train mode to use actual stats in norm layers,
@@ -91,20 +91,20 @@ def process_video(pairs, predictor, output_dir):
 
 def main(img_pattern: str = "/data/SOTIS2/Stabilized/EurasianCitiesBase-Part1/NFrames50/TV-TVL1/**/**/*.png",
          mask_pattern: Optional[str] = None,
-         weights_path='fpn_inception.h5',
+         weights_path='last_sotis.h5',
          out_dir='results/',
          side_by_side: bool = False,
          video: bool = False):
     def sorted_glob(pattern):
         return sorted(glob(pattern))
 
-    test_ratio = 0.25
+    train_ratio = 0.75
     imgs = sorted_glob(img_pattern)
     imgs = imgs
 
-    test_num = math.floor(len(imgs) * test_ratio)
+    train_num = math.ceil(len(imgs) * train_ratio)
 
-    imgs = imgs[:test_num]
+    imgs = imgs[train_num:]
     masks = sorted_glob(mask_pattern) if mask_pattern is not None else [None for _ in imgs]
     pairs = zip(imgs, masks)
     # names = sorted([os.path.basename(x) for x in glob(img_pattern)])
