@@ -54,7 +54,7 @@ model:
   norm_layer: instance
   dropout: True
 
-num_epochs: 2000
+num_epochs: 300
 # train_batches_per_epoch: 1
 # val_batches_per_epoch: 1
 batch_size: 1
@@ -65,6 +65,6 @@ optimizer:
   lr: 0.0001
 scheduler:
   name: linear
-  start_epoch: 50
+  start_epoch: 150
   min_lr: 0.0000001
 
