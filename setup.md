@@ -12,7 +12,7 @@ docker build dg:0.0.1 .
 docker run -it --gpus all --name dg -p 8000:8000 -w /workspace -v /media/DataDrive/:/data -v $(pwd):/workspace dg:0.0.1 /bin/bash
 ```
 
-> Train (TODO)
+> Train
 
 ```bash
 python train.py
