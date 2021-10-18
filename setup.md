@@ -40,4 +40,4 @@ docker run -d --gpus all --name dgv2--test--sotis2 -p 8000:8000 -w /workspace -v
 docker logs dgv2--test--sotis2 --tail 100 -f
 ```
 
-To use CPU instead of GPU, add `-e CUDA_VISIBLE_DEVICES=""` flag to the docker command and replace `.cuda()` with `.cpu()`
+To use CPU instead of GPU, add `-e CUDA_VISIBLE_DEVICES=""` flag to the docker command and replace `.cuda()` with `.cuda()`

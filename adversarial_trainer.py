@@ -60,7 +60,7 @@ class NoGAN(GANTrainer):
 class SingleGAN(GANTrainer):
     def __init__(self, net_d, criterion):
         GANTrainer.__init__(self, net_d, criterion)
-        self.net_d = self.net_d.cpu()
+        self.net_d = self.net_d.cuda()
 
     def loss_d(self, pred, gt):
         return self.criterion(self.net_d, pred, gt)
@@ -79,8 +79,8 @@ class SingleGAN(GANTrainer):
 class DoubleGAN(GANTrainer):
     def __init__(self, net_d, criterion):
         GANTrainer.__init__(self, net_d, criterion)
-        self.patch_d = net_d['patch'].cpu()
-        self.full_d = net_d['full'].cpu()
+        self.patch_d = net_d['patch'].cuda()
+        self.full_d = net_d['full'].cuda()
         self.full_criterion = copy.deepcopy(criterion)
 
     def loss_d(self, pred, gt):

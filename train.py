@@ -35,9 +35,11 @@ class Trainer:
     def train(self):
         self._init_params()
 
-        checkpoint = torch.load('last_{}.h5'.format(self.config['experiment_desc']), map_location=torch.device('cpu'))
+        checkpoint = torch.load('last_{}.h5'.format(self.config['experiment_desc']))
         self.netG.load_state_dict(checkpoint['model'])
         last_epoch = checkpoint.get('epoch') or -1
+        print("Starting from epoch:", last_epoch)
+        logging.debug("Starting from epoch:", last_epoch)
 
         for epoch in range(last_epoch+1, config['num_epochs']):
             if (epoch == self.warmup_epochs) and not (self.warmup_epochs == 0):
@@ -187,7 +189,7 @@ class Trainer:
     def _init_params(self):
         self.criterionG, criterionD = get_loss(self.config['model'])
         self.netG, netD = get_nets(self.config['model'])
-        self.netG.cpu()
+        self.netG.cuda()
         self.adv_trainer = self._get_adversarial_trainer(self.config['model']['d_name'], netD, criterionD)
         self.model = get_model(self.config['model'])
         self.optimizer_G = self._get_optim(filter(lambda p: p.requires_grad, self.netG.parameters()))
