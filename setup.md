@@ -36,8 +36,8 @@ docker logs dg --tail 100 -f
 > Test
 
 ```bash
-docker run -d --gpus all --name dgv2--test--sotis2 -p 8000:8000 -w /workspace -v /media/DataDrive/:/data -v $(pwd):/workspace dg:0.0.1 ./entrypoint.sh
-docker logs dgv2--test--sotis2 --tail 100 -f
+docker run -d --gpus all --name dg-test -p 8000:8000 -w /workspace -v /media/DataDrive/:/data -v $(pwd):/workspace dg:0.0.1 ./entrypoint.sh
+docker logs dg-test --tail 100 -f
 ```
 
 To use CPU instead of GPU, add `-e CUDA_VISIBLE_DEVICES=""` flag to the docker command and replace `.cuda()` with `.cuda()`

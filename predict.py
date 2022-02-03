@@ -56,7 +56,7 @@ class Predictor:
     @staticmethod
     def _postprocess(x: torch.Tensor) -> np.ndarray:
         x, = x
-        x = x.detach().cuda().float().numpy()
+        x = x.detach().cpu().float().numpy()
         x = (np.transpose(x, (1, 2, 0)) + 1) / 2.0 * 255.0
         return x.astype('uint8')
 
