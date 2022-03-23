@@ -4,5 +4,6 @@
 *.h5
 
 fpn/
-results/
+results*/
 sotis/
+backup/

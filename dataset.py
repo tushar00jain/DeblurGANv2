@@ -135,7 +135,7 @@ class PairedDataset(Dataset):
             path = Path(f)
             absolute = path.parent.absolute().parent.absolute()
             image = os.path.basename(str(absolute))
-            gt = os.path.join("/data/SOTIS2/Groundtruth/EurasianCitiesGT", image + ".png")
+            gt = os.path.join("/data/SOTIS/Groundtruth/EurasianCitiesGT", image + ".png")
             files_b.append(gt)
 
         transform_fn = aug.get_transforms(size=config['size'], scope=config['scope'], crop=config['crop'])

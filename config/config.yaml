@@ -4,7 +4,7 @@ experiment_desc: sotis
 
 train:
   train_ratio: .75
-  files_a: &FILES_A /data/SOTIS2/Stabilized/EurasianCitiesBase-Part1/NFrames50/NLTV-LK/**/**/*.png
+  files_a: &FILES_A /data/SOTIS/Stabilized/EurasianCitiesBase/NFrames50/TV-TVL1/**/**/*.png
   files_b: *FILES_A
   size: &SIZE 256
   crop: random
@@ -54,7 +54,7 @@ model:
   norm_layer: instance
   dropout: True
 
-num_epochs: 300
+num_epochs: 250
 # train_batches_per_epoch: 1
 # val_batches_per_epoch: 1
 batch_size: 5

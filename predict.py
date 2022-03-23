@@ -89,9 +89,9 @@ def process_video(pairs, predictor, output_dir):
             pred = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
             video_out.write(pred)
 
-def main(img_pattern: str = "/data/SOTIS2/Stabilized/EurasianCitiesBase-Part1/NFrames50/TV-TVL1/**/**/*.png",
+def main(img_pattern: str,
          mask_pattern: Optional[str] = None,
-         weights_path='last_sotis.h5',
+         weights_path='fpn_inception.h5',
          out_dir='results/',
          side_by_side: bool = False,
          video: bool = False):

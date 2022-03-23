@@ -1,6 +1,7 @@
 import logging
 import aug
 import numpy as np
+import os
 
 from functools import partial
 
@@ -35,9 +36,14 @@ class Trainer:
     def train(self):
         self._init_params()
 
-        checkpoint = torch.load('last_{}.h5'.format(self.config['experiment_desc']))
-        self.netG.load_state_dict(checkpoint['model'])
-        last_epoch = checkpoint.get('epoch') or -1
+        checkpoint_file = 'checkpoints/last_{}.h5'.format(self.config['experiment_desc'])
+
+        last_epoch = -1
+        if os.path.exists(checkpoint_file):
+            checkpoint = torch.load(checkpoint_file)
+            self.netG.load_state_dict(checkpoint['model'])
+            last_epoch = checkpoint.get('epoch') or -1
+
         print("Starting from epoch:", last_epoch)
         logging.debug("Starting from epoch:", last_epoch)
 
@@ -58,7 +64,11 @@ class Trainer:
             torch.save({
                 'model': self.netG.state_dict(),
                 'epoch': epoch
-            }, 'last_{}.h5'.format(self.config['experiment_desc']))
+            }, 'checkpoints/{}_{}.h5'.format(epoch, self.config['experiment_desc']))
+            torch.save({
+                'model': self.netG.state_dict(),
+                'epoch': epoch
+            }, 'checkpoints/last_{}.h5'.format(self.config['experiment_desc']))
             print(self.metric_counter.loss_message())
             logging.debug("Experiment Name: %s, Epoch: %d, Loss: %s" % (
                 self.config['experiment_desc'], epoch, self.metric_counter.loss_message()))
